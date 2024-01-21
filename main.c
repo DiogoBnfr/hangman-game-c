@@ -1,6 +1,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #define LETTERS_SIZE 50
 
@@ -28,7 +29,7 @@ bool check_guess(char guess, const char* word, LETTERS* letters) {
 }
 
 bool check_letters(LETTERS* letters, const char* word) {
-  for (int i = 0; i < sizeof(word); i++) {
+  for (int i = 0; i < strlen(word); i++) {
     if (letters->data[i] != word[i]) return false;
   }
   return true;
@@ -83,22 +84,27 @@ void draw_stickman(int errors) {
 }
 
 int main(int argc, char const* argv[]) {
-  char word[] = "decisive";
+  char word[] = "create";
   int errors = 0;
   char* guess = (char*)malloc(sizeof(char));
+
   LETTERS letters;
   init_letters(&letters);
 
   draw_stickman(errors);
   print_letters(&letters, sizeof(word));
   printf("Errors: %d\n", errors);
+
   while (true) {
     printf("Guess: ");
     scanf(" %c", guess);
+
     if (!check_guess(*guess, word, &letters)) errors++;
+
     draw_stickman(errors);
     print_letters(&letters, sizeof(word));
     printf("Errors: %d\n", errors);
+
     if (errors == 3) {
       printf("YOU LOSE!\n");
       break;
