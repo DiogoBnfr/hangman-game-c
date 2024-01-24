@@ -52,23 +52,43 @@ void print_letters(LETTERS* l, int word_size) {
   printf("\n");
 }
 
-int random_word(char* filename, char* buffer) {
+int count_lines(const char* filename) {
+  FILE* file = fopen(filename, "r");
+
+  while (file == NULL) {
+    printf("Error: file %s not found.\n", filename);
+    return -1;
+  }
+
+  int count = 0;
+  int character;
+
+  do {
+    character = fgetc(file);
+    if (character == '\n') count++;
+  } while (character != EOF);
+
+  return count;
+}
+
+int random_word(const char* filename, char* buffer) {
   FILE* file = fopen(filename, "r");
 
   if (file == NULL) {
-    printf("Error: file not found.");
+    printf("Error: file %s not found.\n", filename);
     return 1;
   }
 
   srand(time(NULL));
 
   // TODO: make reader adaptable to different line numbers files
-  int read_line = rand() % 46 + 1;
+  int upper_bound = count_lines(filename);
+  int read_line = rand() % upper_bound + 1;
   int current_line = 1;
 
   do {
     if (fgets(buffer, sizeof(buffer), file) == NULL) {
-      printf("Error: can't read line %d\n", read_line);
+      printf("Error: can't read line %d.\n", read_line);
       fclose(file);
       return 1;
     }
