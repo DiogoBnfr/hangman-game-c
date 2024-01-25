@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,17 +7,7 @@
 
 #define BUFFER_SIZE 50
 
-typedef struct {
-  char data[BUFFER_SIZE];
-  int size;
-} LETTERS;
-
-void init_letters(LETTERS* g) {
-  for (int i = 0; i < BUFFER_SIZE; i++) g->data[i] = '_';
-  g->size = 0;
-}
-
-int word_size(char* buffer) {
+int buffer_size(char* buffer) {
   int size = 0;
   for (int i = 0; i < BUFFER_SIZE; i++) {
     if (buffer[i] == '\0') break;
@@ -25,29 +16,51 @@ int word_size(char* buffer) {
   return size;
 }
 
-bool check_guess(char guess, const char* word, LETTERS* letters) {
-  int count = 0;
-  for (int i = 0; i < sizeof(word); i++) {
-    if (guess == word[i]) {
-      letters->data[i] = guess;
-      letters->size++;
-      count++;
+void tolower_str(char* str) {
+  for (int i = 0; i < strlen(str); i++) str[i] = tolower(str[i]);
+}
+
+void initialize_guesses(char* guesses, char* word) {
+  for (int i = 0; i < buffer_size(word); i++) {
+    guesses[i] = '_';
+  }
+}
+
+bool check_guess(char guess, char* word, char* guesses) {
+  for (int i = 0; i < buffer_size(word); i++) {
+    if (word[i] == guess) {
+      guesses[i] = guess;
+      return true;
     }
   }
-  if (count > 0) return true;
   return false;
 }
 
-bool check_letters(LETTERS* letters, const char* word) {
-  for (int i = 0; i < strlen(word); i++) {
-    if (letters->data[i] != word[i]) return false;
+bool check_guesses(char guess, char* word, char* guesses) {
+  int count;
+
+  for (int i = 0; i < buffer_size(word); i++) {
+    for (int j = 0; j < buffer_size(guesses); j++) {
+      if (word[i] == guesses[j]) count++;
+    }
   }
-  return true;
+
+  if (count == buffer_size(word) - 1) return true;
+  return false;
 }
 
-void print_letters(LETTERS* l, int word_size) {
-  for (int i = 0; i < word_size - 1; i++) {
-    printf("%c ", l->data[i]);
+void display_current_state(char* word, char* guesses) {
+  bool printed;
+
+  for (int i = 0; i < buffer_size(word) - 1; i++) {
+    printed = false;
+    for (int j = 0; j < buffer_size(guesses); j++) {
+      if (word[i] == guesses[j]) {
+        printf("%c ", word[i]);
+        printed = true;
+      }
+    }
+    if (printed == false) printf("_ ");
   }
   printf("\n");
 }
@@ -71,7 +84,7 @@ int count_lines(const char* filename) {
   return count;
 }
 
-int random_word(const char* filename, char* buffer) {
+int random_word(const char* filename, char* word) {
   FILE* file = fopen(filename, "r");
 
   if (file == NULL) {
@@ -81,13 +94,12 @@ int random_word(const char* filename, char* buffer) {
 
   srand(time(NULL));
 
-  // TODO: make reader adaptable to different line numbers files
   int upper_bound = count_lines(filename);
   int read_line = rand() % upper_bound + 1;
   int current_line = 1;
 
   do {
-    if (fgets(buffer, sizeof(buffer), file) == NULL) {
+    if (fgets(word, sizeof(word), file) == NULL) {
       printf("Error: can't read line %d.\n", read_line);
       fclose(file);
       return 1;
@@ -145,43 +157,48 @@ void draw_stickman(int errors) {
 }
 
 int main(int argc, char const* argv[]) {
-  char buffer[BUFFER_SIZE];
+  char word[BUFFER_SIZE];
   int errors = 0;
-  char* guess = (char*)malloc(sizeof(char));
 
-  // TODO: make all letter lowercase (file/user input)
-  random_word("words.txt", buffer);
-  int size = word_size(buffer);
-  printf("%s\n", buffer);
+  random_word("words.txt", word);
+  tolower_str(word);
 
-  LETTERS letters;
-  init_letters(&letters);
+  printf("%s\n", word);
+
+  char guesses[BUFFER_SIZE];
+  initialize_guesses(guesses, word);
+
+  char guess;
 
   draw_stickman(errors);
-  print_letters(&letters, size);
+  display_current_state(word, guesses);
   printf("Errors: %d\n", errors);
 
   while (true) {
     printf("Guess: ");
-    scanf(" %c", guess);
+    scanf(" %c", &guess);
+    guess = tolower(guess);
 
-    if (!check_guess(*guess, buffer, &letters)) errors++;
+    printf("\n");
+
+    if (!check_guess(guess, word, guesses)) errors++;
+
+    fflush(stdin);
 
     draw_stickman(errors);
-    print_letters(&letters, size);
+    display_current_state(word, guesses);
     printf("Errors: %d\n", errors);
 
     if (errors == 3) {
       printf("YOU LOSE!\n");
+      printf("The word was: %s", word);
       break;
-    }  // TODO: don't recognize win
-    if (check_letters(&letters, buffer)) {
+    }
+    if (check_guesses(guess, word, guesses) == true) {
       printf("YOU WIN!\n");
       break;
     }
   }
-
-  printf("The word was: %s", buffer);
 
   return 0;
 }
