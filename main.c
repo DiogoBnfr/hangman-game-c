@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -37,14 +38,14 @@ bool check_guess(char guess, char* word, char* guesses) {
 }
 
 bool check_guesses(char guess, char* word, char* guesses) {
-  int count;
+  int count = 0;
 
   for (int i = 0; i < buffer_size(word); i++) {
     for (int j = 0; j < buffer_size(guesses); j++) {
       if (word[i] == guesses[j]) count++;
     }
   }
-
+	
   if (count == buffer_size(word) - 1) return true;
   return false;
 }
@@ -162,8 +163,6 @@ int main(int argc, char const* argv[]) {
 
   random_word("words.txt", word);
   tolower_str(word);
-
-  printf("%s\n", word);
 
   char guesses[BUFFER_SIZE];
   initialize_guesses(guesses, word);
