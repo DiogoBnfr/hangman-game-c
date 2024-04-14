@@ -8,26 +8,28 @@
 
 #define BUFFER_SIZE 50
 
-int buffer_size(char* buffer) {
+int buffer_size(char *buffer) {
   int size = 0;
   for (int i = 0; i < BUFFER_SIZE; i++) {
-    if (buffer[i] == '\0') break;
+    if (buffer[i] == '\0')
+      break;
     size++;
   }
   return size;
 }
 
-void tolower_str(char* str) {
-  for (int i = 0; i < strlen(str); i++) str[i] = tolower(str[i]);
+void tolower_str(char *str) {
+  for (int i = 0; i < (int)strlen(str); i++)
+    str[i] = tolower(str[i]);
 }
 
-void initialize_guesses(char* guesses, char* word) {
+void initialize_guesses(char *guesses, char *word) {
   for (int i = 0; i < buffer_size(word); i++) {
     guesses[i] = '_';
   }
 }
 
-bool check_guess(char guess, char* word, char* guesses) {
+bool check_guess(char guess, char *word, char *guesses) {
   for (int i = 0; i < buffer_size(word); i++) {
     if (word[i] == guess) {
       guesses[i] = guess;
@@ -37,20 +39,22 @@ bool check_guess(char guess, char* word, char* guesses) {
   return false;
 }
 
-bool check_guesses(char guess, char* word, char* guesses) {
+bool check_guesses(char guess, char *word, char *guesses) {
   int count = 0;
 
   for (int i = 0; i < buffer_size(word); i++) {
     for (int j = 0; j < buffer_size(guesses); j++) {
-      if (word[i] == guesses[j]) count++;
+      if (word[i] == guesses[j])
+        count++;
     }
   }
-	
-  if (count == buffer_size(word) - 1) return true;
+
+  if (count == buffer_size(word) - 1)
+    return true;
   return false;
 }
 
-void display_current_state(char* word, char* guesses) {
+void display_current_state(char *word, char *guesses) {
   bool printed;
 
   for (int i = 0; i < buffer_size(word) - 1; i++) {
@@ -61,13 +65,14 @@ void display_current_state(char* word, char* guesses) {
         printed = true;
       }
     }
-    if (printed == false) printf("_ ");
+    if (printed == false)
+      printf("_ ");
   }
   printf("\n");
 }
 
-int count_lines(const char* filename) {
-  FILE* file = fopen(filename, "r");
+int count_lines(const char *filename) {
+  FILE *file = fopen(filename, "r");
 
   while (file == NULL) {
     printf("Error: file %s not found.\n", filename);
@@ -79,14 +84,15 @@ int count_lines(const char* filename) {
 
   do {
     character = fgetc(file);
-    if (character == '\n') count++;
+    if (character == '\n')
+      count++;
   } while (character != EOF);
 
   return count;
 }
 
-int random_word(const char* filename, char* word) {
-  FILE* file = fopen(filename, "r");
+int random_word(const char *filename, char *word) {
+  FILE *file = fopen(filename, "r");
 
   if (file == NULL) {
     printf("Error: file %s not found.\n", filename);
@@ -118,46 +124,46 @@ int random_word(const char* filename, char* word) {
 
 void draw_stickman(int errors) {
   switch (errors) {
-    case 0:
-      printf("  +---+\n");
-      printf("  |   |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("=========\n\n");
-      break;
-    case 1:
-      printf("  +---+\n");
-      printf("  |   |\n");
-      printf("  O   |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("=========\n\n");
-      break;
-    case 2:
-      printf("  +---+\n");
-      printf("  |   |\n");
-      printf("  O   |\n");
-      printf(" /|\\  |\n");
-      printf("      |\n");
-      printf("      |\n");
-      printf("=========\n\n");
-      break;
-    case 3:
-      printf("  +---+\n");
-      printf("  |   |\n");
-      printf("  O   |\n");
-      printf(" /|\\  |\n");
-      printf(" / \\  |\n");
-      printf("      |\n");
-      printf("=========\n\n");
-      break;
+  case 0:
+    printf("  +---+\n");
+    printf("  |   |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("=========\n\n");
+    break;
+  case 1:
+    printf("  +---+\n");
+    printf("  |   |\n");
+    printf("  O   |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("=========\n\n");
+    break;
+  case 2:
+    printf("  +---+\n");
+    printf("  |   |\n");
+    printf("  O   |\n");
+    printf(" /|\\  |\n");
+    printf("      |\n");
+    printf("      |\n");
+    printf("=========\n\n");
+    break;
+  case 3:
+    printf("  +---+\n");
+    printf("  |   |\n");
+    printf("  O   |\n");
+    printf(" /|\\  |\n");
+    printf(" / \\  |\n");
+    printf("      |\n");
+    printf("=========\n\n");
+    break;
   }
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char const *argv[]) {
   char word[BUFFER_SIZE];
   int errors = 0;
 
@@ -180,7 +186,8 @@ int main(int argc, char const* argv[]) {
 
     printf("\n");
 
-    if (!check_guess(guess, word, guesses)) errors++;
+    if (!check_guess(guess, word, guesses))
+      errors++;
 
     fflush(stdin);
 
